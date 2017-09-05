@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8" />
+	<style type="text/css">
+		.bigImage{
+			display:inline-block;
+			width:350px;
+			height: 224px;
+		}
+		.smallImage{
+			border:1px solid #ccc;
+			padding:3px;
+		}
+		.mydiv{
+			position:absolute;
+			left:0px;
+			top:0px;
+			overflow: hidden;
+			z-index:1000;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		<a href="images/big.jpg" class="bigImage">
+			<img src="images/small.jpg" class="smallImage" />
+		</a>
+	</div>
+	<script type="text/javascript" src="jquery-1.11.1.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			//定义默认参数
+			var settings={
+				xzoom:400,     //定义放大镜的大小
+				yzoom:400,
+				offset:10,    //放大镜和图片之间的距离
+				position:"right"   //默认放大镜在图片的右边
+			}
+
+			$("img.smallImage").hover(function(){
+				//获取一下位置
+				//get（0）把jquery对象转换为js对象
+				var imageLeft=$(this).get(0).offsetLeft;
+				var imageTop=$(this).get(0).offsetTop;
+				var imageWidth=$(this).get(0).offsetWidth;
+				var imageHeight=$(this).get(0).offsetHeight;
+
+				//得到较大的那张图片
+				var bigImage=$(this).parent().attr("href");
+				//创建div
+				if($("div.mydiv").length==0){
+					//在这个标签之后来创建一个div
+					$(this).after("<div class='mydiv'><img class='bigimg' src='"+bigImage+"' /></div>");
+				}
+				//创建出来之后要来设置一下位置
+				$("div.mydiv").width(settings.xzoom);
+				$("div.mydiv").height(settings.yzoom);
+
+			var leftValue=parseInt(imageLeft)+parseInt(imageWidth)+parseInt(settings.offset
+					);
+			$("div.mydiv").css({left:leftValue,top:imageTop});
+
+			//添加移动事件
+			$(".bigImage").mousemove(function(e){
+				//计算缩放的比例
+				var bigWidth=$(".bigimg").get(0).offsetWidth;
+				var bigHeight=$(".bigimg").get(0).offsetHeight;
+
+				var scalex=bigWidth/imageWidth;
+				var sacley=bigHeight/imageHeight;
+
+				//计算移动的位置 减去放大镜的一半  
+				var scrolly=e.pageY-imageTop-($("div.mydiv").height()/sacley/2);
+				var scrollx=e.pageX-imageLeft-($("div.mydiv").width()/scalex/2);
+
+				$("div.mydiv").get(0).scrollLeft=scrollx*scalex;
+				$("div.mydiv").get(0).scrollTop=scrolly*sacley;
+			   })
+			},function(){
+				$("div.mydiv").hide();
+				$("div.mydiv").remove();
+				$(".bigImage").unbind("mousemove");
+			});
+		})
+	</script>
+</body>
+</html>
